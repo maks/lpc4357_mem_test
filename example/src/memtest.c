@@ -32,6 +32,9 @@
 #include "board.h"
 #include "mem_tests.h"
 
+#define SDRAM_SIZE               0x2000000 // 32MB available on dev board
+#define SDRAM_BASE               0x28000000 /*CS0*/
+
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -43,13 +46,6 @@
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
-
-/* Synchronizes the LED toggling to avoid racing conditions
-   when both tasks wants to access at the same time */
-static void safe_Board_LED_Set(uint8_t LEDNumber, bool On)
-{
-    Board_LED_Set(LEDNumber, On);
-}
 
 /* Sets up system hardware */
 static void prvSetupHardware(void)
@@ -66,30 +62,23 @@ static void prvSetupHardware(void)
  * Public functions
  ****************************************************************************/
 
-/**
- * @brief	main routine for FreeRTOS blinky example
- * @return	Nothing, function should not exit
- */
 int main(void)
 {
 	prvSetupHardware();
 
-	DEBUGOUT("MEM Test Started");
-
-#define SDRAM_SIZE               0x2000000 // 32MB available on dev board
-#define SDRAM_BASE               0x28000000 /*CS0*/
+	DEBUGOUT("\nMEM Test Started\n");
 
 	MEM_TEST_SETUP_T test_setup;
 
-	test_setup.bytes = 4 * 1024; //SDRAM_SIZE;
+	test_setup.bytes = 4 * 1024; //start with just 4kB
 	test_setup.start_addr = (uint32_t *)SDRAM_BASE;
 
-	printf("doing mem test walk 1");
+	printf("doing mem test walk 1\n");
 	bool result = mem_test_walking1(&test_setup);
-	printf("mem test walk 1 RES:%d", result);
+	printf("mem test walk 1 RES:%d\n", result);
 
 	while(1) {
-
+		//stop after test run
 	}
 	/* Should never arrive here */
 	return 1;
